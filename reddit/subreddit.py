@@ -1,4 +1,5 @@
 import re
+import random
 
 from utils import settings
 import praw
@@ -68,9 +69,17 @@ def get_subreddit_threads(POST_ID: str):
         and len(str(settings.config["reddit"]["thread"]["post_id"]).split("+")) == 1
     ):
         submission = reddit.submission(id=settings.config["reddit"]["thread"]["post_id"])
+        
     else:
-        threads = subreddit.hot(limit=25)
-        submission = get_subreddit_undone(threads, subreddit)
+        threads = subreddit.hot(limit=100)
+        # Random submission selection
+        submissionarray = []
+        for submission in threads:
+            submissionarray.append(submission)
+        if len(submissionarray) > 0:
+            x = random.randrange(0, len(submissionarray), 2)
+            submission = submissionarray[x]
+        # submission = get_subreddit_undone(threads, subreddit)
     submission = check_done(submission)  # double-checking
     if submission is None or not submission.num_comments:
         return get_subreddit_threads(POST_ID)  # submission already done. rerun
